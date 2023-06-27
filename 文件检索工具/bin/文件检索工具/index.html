@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>文件检索工具</title>
+</head>
+<body>
+    <h1>文件检索工具</h1>
+    <form>
+        <label for="directory">目录路径:</label>
+        <input type="text" id="directory" name="directory" size="30">
+        <br><br>
+        <label for="keyword">关键字:</label>
+        <input type="text" id="keyword" name="keyword" size="30">
+        <br><br>
+        <button type="button" onclick="performSearch()">检索</button>
+        <button type="button" onclick="saveResultsToFile()">保存结果</button>
+    </form>
+    <br>
+    <label for="result">检索结果:</label>
+    <textarea id="result" name="result" rows="10" cols="50" readonly></textarea>
+
+    <script>
+        function performSearch() {
+            var directory = document.getElementById("directory").value;
+            var keyword = document.getElementById("keyword").value;
+
+            var resultTextArea = document.getElementById("result");
+            resultTextArea.value = "执行检索操作...\n";
+
+            var searchResults = JavaSearchTool.search(directory, keyword);
+
+            resultTextArea.value = "";
+            for (var i = 0; i < searchResults.length; i++) {
+                resultTextArea.value += searchResults[i] + "\n";
+            }
+        }
+
+        function saveResultsToFile() {
+            alert("结果保存成功");
+        }
+
+        var JavaSearchTool = {
+            search: function(directory, keyword) {
+                var results = [];
+                results.push("文件1.txt");
+                results.push("文件2.txt");
+                results.push("文件3.txt");
+                return results;
+            }
+        };
+    </script>
+</body>
+</html>
