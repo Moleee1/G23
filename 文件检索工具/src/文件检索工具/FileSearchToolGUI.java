@@ -1,4 +1,4 @@
-package ÎÄ¼ş¼ìË÷¹¤¾ß;
+package æ–‡ä»¶æ£€ç´¢å·¥å…·;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,20 +19,20 @@ public class FileSearchToolGUI extends JFrame {
     private Map<String, List<String>> fileIndex;
 
     public FileSearchToolGUI() {
-        setTitle("ÎÄ¼ş¼ìË÷¹¤¾ß");
+        setTitle("æ–‡ä»¶æ£€ç´¢å·¥å…·");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLayout(new BorderLayout());
 
         JPanel directoryPanel = new JPanel(new FlowLayout());
-        JLabel directoryLabel = new JLabel("Ä¿Â¼Â·¾¶:");
+        JLabel directoryLabel = new JLabel("ç›®å½•è·¯å¾„:");
         directoryTextField = new JTextField(20);
 
         JPanel keywordPanel = new JPanel(new FlowLayout());
-        JLabel keywordLabel = new JLabel("¹Ø¼ü×Ö:");
+        JLabel keywordLabel = new JLabel("å…³é”®å­—:");
         keywordTextField = new JTextField(20);
 
-        JButton searchButton = new JButton("¼ìË÷");
+        JButton searchButton = new JButton("æ£€ç´¢");
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -50,7 +50,7 @@ public class FileSearchToolGUI extends JFrame {
         buttonPanel.add(searchButton);
 
         JPanel resultPanel = new JPanel(new BorderLayout());
-        JLabel resultLabel = new JLabel("¼ìË÷½á¹û:");
+        JLabel resultLabel = new JLabel("æ£€ç´¢ç»“æœ:");
         resultTextArea = new JTextArea();
         resultTextArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(resultTextArea);
@@ -68,6 +68,20 @@ public class FileSearchToolGUI extends JFrame {
 
         selectedResults = new ArrayList<>();
         fileIndex = new HashMap<>();
+        
+        selectedResults = new ArrayList<>();
+        fileIndex = new HashMap<>();
+
+        // è¿æ¥æ•°æ®åº“
+        String url = "jdbc:mysql://localhost:3306/mysql";
+        String user = "root";
+        String password = "";
+
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "è¿æ¥æ•°æ®åº“æ—¶å‡ºç°é”™è¯¯");
     }
 
     private void performSearch() {
@@ -79,7 +93,7 @@ public class FileSearchToolGUI extends JFrame {
 
         File directory = new File(directoryPath);
         if (!directory.exists() || !directory.isDirectory()) {
-            JOptionPane.showMessageDialog(this, "Ä¿Â¼²»´æÔÚ»ò²»ÊÇÒ»¸öÓĞĞ§µÄÎÄ¼ş¼ĞÂ·¾¶");
+            JOptionPane.showMessageDialog(this, "ç›®å½•ä¸å­˜åœ¨æˆ–ä¸æ˜¯ä¸€ä¸ªæœ‰æ•ˆçš„æ–‡ä»¶å¤¹è·¯å¾„");
             return;
         }
 
@@ -108,11 +122,11 @@ public class FileSearchToolGUI extends JFrame {
             while ((line = reader.readLine()) != null) {
                 if (line.toLowerCase().contains(keyword.toLowerCase())) {
                     if (!keywordFound) {
-                        resultTextArea.append("ÎÄ¼şÂ·¾¶£º" + getFilePathWithLineNumber(file) + "\n");
+                        resultTextArea.append("æ–‡ä»¶è·¯å¾„ï¼š" + getFilePathWithLineNumber(file) + "\n");
                         resultTextArea.append("-----------------------------------\n");
                         keywordFound = true;
                     }
-                    resultTextArea.append("ĞĞºÅ" + lineNumber + ": " + line + "\n\n");
+                    resultTextArea.append("è¡Œå·" + lineNumber + ": " + line + "\n\n");
                 }
                 lineNumber++;
             }
@@ -125,7 +139,7 @@ public class FileSearchToolGUI extends JFrame {
             }
 
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "¶ÁÈ¡ÎÄ¼şÊ±³öÏÖ´íÎó");
+            JOptionPane.showMessageDialog(this, "è¯»å–æ–‡ä»¶æ—¶å‡ºç°é”™è¯¯");
         }
     }
 
