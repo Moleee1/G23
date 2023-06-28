@@ -5,10 +5,16 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 public class FileSearchToolGUI extends JFrame {
     private JTextField directoryTextField;
@@ -17,6 +23,7 @@ public class FileSearchToolGUI extends JFrame {
 
     private List<String> selectedResults;
     private Map<String, List<String>> fileIndex;
+    private Connection connection;
 
     public FileSearchToolGUI() {
         setTitle("文件检索工具");
@@ -40,6 +47,14 @@ public class FileSearchToolGUI extends JFrame {
             }
         });
 
+        JButton saveButton = new JButton("保存");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveSelectedResults();
+            }
+        });
+
         directoryPanel.add(directoryLabel);
         directoryPanel.add(directoryTextField);
 
@@ -48,6 +63,7 @@ public class FileSearchToolGUI extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(searchButton);
+        buttonPanel.add(saveButton);
 
         JPanel resultPanel = new JPanel(new BorderLayout());
         JLabel resultLabel = new JLabel("检索结果:");
@@ -68,9 +84,6 @@ public class FileSearchToolGUI extends JFrame {
 
         selectedResults = new ArrayList<>();
         fileIndex = new HashMap<>();
-        
-        selectedResults = new ArrayList<>();
-        fileIndex = new HashMap<>();
 
         // 连接数据库
         String url = "jdbc:mysql://localhost:3306/mysql";
@@ -82,6 +95,8 @@ public class FileSearchToolGUI extends JFrame {
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "连接数据库时出现错误");
+           
+        }
     }
 
 private void performSearch() {
