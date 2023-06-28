@@ -1,53 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ÎÄ¼þ¼ìË÷¹¤¾ß</title>
-</head>
-<body>
-    <h1>ÎÄ¼þ¼ìË÷¹¤¾ß</h1>
-    <form>
-        <label for="directory">Ä¿Â¼Â·¾¶:</label>
-        <input type="text" id="directory" name="directory" size="30">
-        <br><br>
-        <label for="keyword">¹Ø¼ü×Ö:</label>
-        <input type="text" id="keyword" name="keyword" size="30">
-        <br><br>
-        <button type="button" onclick="performSearch()">¼ìË÷</button>
-        <button type="button" onclick="saveResultsToFile()">±£´æ½á¹û</button>
-    </form>
-    <br>
-    <label for="result">¼ìË÷½á¹û:</label>
-    <textarea id="result" name="result" rows="10" cols="50" readonly></textarea>
-
+    <title>æ–‡ä»¶æ£€ç´¢å·¥å…·</title>
     <script>
-        function performSearch() {
-            var directory = document.getElementById("directory").value;
+        function searchFiles() {
+            var directoryPath = document.getElementById("directory").value;
             var keyword = document.getElementById("keyword").value;
 
-            var resultTextArea = document.getElementById("result");
-            resultTextArea.value = "Ö´ÐÐ¼ìË÷²Ù×÷...\n";
-
-            var searchResults = JavaSearchTool.search(directory, keyword);
-
-            resultTextArea.value = "";
-            for (var i = 0; i < searchResults.length; i++) {
-                resultTextArea.value += searchResults[i] + "\n";
-            }
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "search.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    document.getElementById("results").innerHTML = xhr.responseText;
+                }
+            };
+            xhr.send("directory=" + encodeURIComponent(directoryPath) + "&keyword=" + encodeURIComponent(keyword));
         }
-
-        function saveResultsToFile() {
-            alert("½á¹û±£´æ³É¹¦");
-        }
-
-        var JavaSearchTool = {
-            search: function(directory, keyword) {
-                var results = [];
-                results.push("ÎÄ¼þ1.txt");
-                results.push("ÎÄ¼þ2.txt");
-                results.push("ÎÄ¼þ3.txt");
-                return results;
-            }
-        };
     </script>
+</head>
+<body>
+    <h1>æ–‡ä»¶æ£€ç´¢å·¥å…·</h1>
+    <label for="directory">ç›®å½•è·¯å¾„:</label>
+    <input type="text" id="directory" name="directory" size="50"><br><br>
+    <label for="keyword">å…³é”®å­—:</label>
+    <input type="text" id="keyword" name="keyword" size="50"><br><br>
+    <button onclick="searchFiles()">æ£€ç´¢</button><br><br>
+    <div id="results"></div>
 </body>
 </html>
