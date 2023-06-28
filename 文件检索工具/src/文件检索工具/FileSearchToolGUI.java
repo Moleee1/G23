@@ -86,9 +86,9 @@ public class FileSearchToolGUI extends JFrame {
         fileIndex = new HashMap<>();
 
         // 连接数据库
-        String url = "jdbc:mysql://localhost:3306/mysql";
+        String url = "jdbc:mysql://localhost:3306/123";
         String user = "root";
-        String password = "";
+        String password = "123";
 
         try {
             connection = DriverManager.getConnection(url, user, password);
@@ -99,7 +99,7 @@ public class FileSearchToolGUI extends JFrame {
         }
     }
 
-private void performSearch() {
+    private void performSearch() {
         String directoryPath = directoryTextField.getText();
         String keyword = keywordTextField.getText();
 
@@ -128,7 +128,7 @@ private void performSearch() {
         }
     }
 
- private void searchFile(File file, String keyword) {
+    private void searchFile(File file, String keyword) {
         try (InputStream inputStream = new FileInputStream(file)) {
             XWPFDocument document = new XWPFDocument(inputStream);
             List<XWPFParagraph> paragraphs = document.getParagraphs();
