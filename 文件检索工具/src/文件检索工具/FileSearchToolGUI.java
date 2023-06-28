@@ -84,7 +84,7 @@ public class FileSearchToolGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "连接数据库时出现错误");
     }
 
-    private void performSearch() {
+private void performSearch() {
         String directoryPath = directoryTextField.getText();
         String keyword = keywordTextField.getText();
 
@@ -104,7 +104,7 @@ public class FileSearchToolGUI extends JFrame {
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (file.isFile() && file.getName().toLowerCase().endsWith(".txt")) {
+                if (file.isFile() && file.getName().toLowerCase().endsWith(".docx")) {
                     searchFile(file, keyword);
                 } else if (file.isDirectory()) {
                     traverseDirectory(file, keyword);
