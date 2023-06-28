@@ -113,29 +113,44 @@ public class FileSearchToolGUI extends JFrame {
         }
     }
 
-    private void searchFile(File file, String keyword) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            int lineNumber = 1;
+ private void searchFile(File file, String keyword) {
+        try (InputStream inputStream = new FileInputStream(file)) {
+            XWPFDocument document = new XWPFDocument(inputStream);
+            List<XWPFParagraph> paragraphs = document.getParagraphs();
+
             boolean keywordFound = false;
 
-            while ((line = reader.readLine()) != null) {
-                if (line.toLowerCase().contains(keyword.toLowerCase())) {
+            for (XWPFParagraph paragraph : paragraphs) {
+                String text = paragraph.getText();
+                if (text.toLowerCase().contains(keyword.toLowerCase())) {
                     if (!keywordFound) {
-                        resultTextArea.append("文件路径：" + getFilePathWithLineNumber(file) + "\n");
+                        resultTextArea.append("文件路径：" + getFilePath(file) + "\n");
                         resultTextArea.append("-----------------------------------\n");
                         keywordFound = true;
                     }
-                    resultTextArea.append("行号" + lineNumber + ": " + line + "\n\n");
+                    resultTextArea.append(text + "\n\n");
                 }
-                lineNumber++;
             }
 
             if (keywordFound) {
-                selectedResults.add(file.getAbsolutePath());
-                List<String> lines = fileIndex.getOrDefault(file.getAbsolutePath(), new ArrayList<>());
-                lines.add(resultTextArea.getText());
-                fileIndex.put(file.getAbsolutePath(), lines);
+                selectedResults.add(getFilePath(file));
+                List<String> content = new ArrayList<>();
+                for (XWPFParagraph paragraph : paragraphs) {
+                    content.add(paragraph.getText());
+                }
+                fileIndex.put(getFilePath(file), content);
+
+                // 将结果存储到数据库
+                try {
+                    PreparedStatement statement = connection.prepareStatement("INSERT INTO files (path, content) VALUES (?, ?)");
+                    statement.setString(1, getFilePath(file));
+                    statement.setString(2, String.join("\n", content));
+                    statement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "存储结果到数据库时出现错误");
+                    // 可能需要在这里添加一些逻辑来处理存储失败的情况
+                }
             }
 
         } catch (IOException e) {
@@ -143,10 +158,36 @@ public class FileSearchToolGUI extends JFrame {
         }
     }
 
-    private String getFilePathWithLineNumber(File file) {
-        String filePath = file.getAbsolutePath();
-        filePath = filePath.replace("\\", "\\\\");
-        return filePath;
+    private String getFilePath(File file) {
+        return file.getAbsolutePath();
+    }
+
+    private void saveSelectedResults() {
+        if (selectedResults.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "没有选定的结果需要保存");
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("保存选定结果");
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try (PrintWriter writer = new PrintWriter(selectedFile)) {
+                for (String filePath : selectedResults) {
+                    writer.println("文件路径: " + filePath);
+                    writer.println("-----------------------------------");
+                    List<String> content = fileIndex.get(filePath);
+                    for (String line : content) {
+                        writer.println(line);
+                    }
+                    writer.println();
+                }
+                JOptionPane.showMessageDialog(this, "保存成功");
+            } catch (FileNotFoundException e) {
+                JOptionPane.showMessageDialog(this, "保存文件时出现错误");
+            }
+        }
     }
 
     public static void main(String[] args) {
