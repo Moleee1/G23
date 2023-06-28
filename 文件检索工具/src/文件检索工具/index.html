@@ -1,31 +1,73 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.sql.*" %>
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>文件检索工具</title>
-    <script>
-        function searchFiles() {
-            var directoryPath = document.getElementById("directory").value;
-            var keyword = document.getElementById("keyword").value;
-
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "search.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    document.getElementById("results").innerHTML = xhr.responseText;
-                }
-            };
-            xhr.send("directory=" + encodeURIComponent(directoryPath) + "&keyword=" + encodeURIComponent(keyword));
-        }
-    </script>
 </head>
 <body>
     <h1>文件检索工具</h1>
-    <label for="directory">目录路径:</label>
-    <input type="text" id="directory" name="directory" size="50"><br><br>
-    <label for="keyword">关键字:</label>
-    <input type="text" id="keyword" name="keyword" size="50"><br><br>
-    <button onclick="searchFiles()">检索</button><br><br>
-    <div id="results"></div>
+    <form action="FileSearchTool" method="get">
+        <label for="directory">目录路径：</label>
+        <input type="text" id="directory" name="directory" required><br><br>
+        <label for="keyword">关键词：</label>
+        <input type="text" id="keyword" name="keyword" required><br><br>
+        <input type="submit" value="检索">
+    </form>
+
+    <hr>
+
+    <h2>文件检索结果</h2>
+    <%
+        List<String> selectedResults = (List<String>) request.getAttribute("selectedResults");
+        Map<String, List<String>> fileIndex = (Map<String, List<String>>) request.getAttribute("fileIndex");
+
+        if (selectedResults != null && fileIndex != null) {
+            for (String filePath : selectedResults) {
+                out.println("文件路径: " + filePath + "<br>");
+                out.println("-----------------------------------<br>");
+
+                List<String> content = fileIndex.get(filePath);
+                if (content != null) {
+                    for (String line : content) {
+                        out.println(line + "<br>");
+                    }
+                }
+
+                out.println("<br>");
+            }
+        } else {
+            out.println("未找到匹配的文件和内容。");
+        }
+    %>
+
+    <hr>
+
+    <h2>保存选中内容</h2>
+    <form action="SaveSelectedContent" method="post">
+        <%
+            if (selectedResults != null && fileIndex != null) {
+                for (String filePath : selectedResults) {
+                    out.println("<h3>文件路径: " + filePath + "</h3>");
+                    out.println("<textarea name=\"" + filePath + "\" rows=\"10\" cols=\"50\">");
+
+                    List<String> content = fileIndex.get(filePath);
+                    if (content != null) {
+                        for (String line : content) {
+                            out.println(line);
+                        }
+                    }
+
+                    out.println("</textarea><br><br>");
+                }
+            } else {
+                out.println("未找到匹配的文件和内容。");
+            }
+        %>
+        <input type="submit" value="保存选中内容">
+    </form>
 </body>
 </html>
